@@ -113,6 +113,8 @@ export const JOURNEY_STOPS = [
   { selector: '#community',    place: 'Along W. Jefferson Street',  point: { x: 840, y: 668 } },
   { selector: '#street',       place: 'Walking the cottage row',    point: { x: 660, y: 345 } },
   { selector: '#living',       place: 'At cottage lots 1–4',        point: { x: 720, y: 318 } },
+  { selector: '#inside',       place: 'Inside a cottage',           point: { x: 690, y: 288 } },
+  { selector: '#design',       place: 'Choosing your home',         point: { x: 752, y: 288 } },
   { selector: '#neighborhood', place: 'Overlooking the plan',       point: { x: 640, y: 560 } },
   { selector: '.everyday',     place: 'Out on the trail',           point: { x: 720, y: 115 } },
   { selector: '#faqs',         place: 'On a front porch',           point: { x: 605, y: 410 } },

@@ -6,7 +6,7 @@
 // Calibrate mode: open the page with ?calibrate in the URL, then drag a
 // box over any lot on the plan. The rectangle is logged to the console
 // and copied to your clipboard, ready to paste into planData.js.
-import React, { useMemo, useRef, useState } from 'react'
+import React, { useEffect, useMemo, useRef, useState } from 'react'
 import { PLAN_IMAGE, PLAN_SIZE, PLAN_VIEWBOX, HOTSPOTS } from './planData'
 import { scrollToTarget } from './smoothScroll'
 
@@ -31,6 +31,22 @@ export default function CommunityPlan({ onSelect, hotspots = HOTSPOTS, className
   const svgRef = useRef(null)
   const [activeId, setActiveId] = useState(null)
   const [draft, setDraft] = useState(null) // calibrate-mode rectangle
+  const rootRef = useRef(null)
+  const [inView, setInView] = useState(false)
+
+  // the pins pop up one after another the first time the plan is seen
+  useEffect(() => {
+    const el = rootRef.current
+    if (!el || !('IntersectionObserver' in window)) return setInView(true)
+    const io = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) {
+        setInView(true)
+        io.disconnect()
+      }
+    }, { threshold: 0.35 })
+    io.observe(el)
+    return () => io.disconnect()
+  }, [])
 
   const calibrate = useMemo(
     () => typeof window !== 'undefined' && new URLSearchParams(window.location.search).has('calibrate'),
@@ -97,7 +113,7 @@ export default function CommunityPlan({ onSelect, hotspots = HOTSPOTS, className
   }
 
   return (
-    <div className={`kcc-plan ${calibrate ? 'is-calibrating' : ''} ${className}`}>
+    <div ref={rootRef} className={`kcc-plan ${inView ? 'is-inview' : ''} ${calibrate ? 'is-calibrating' : ''} ${className}`}>
       <svg
         ref={svgRef}
         viewBox={PLAN_VIEWBOX.join(' ')}
@@ -118,9 +134,10 @@ export default function CommunityPlan({ onSelect, hotspots = HOTSPOTS, className
         />
 
         {!calibrate &&
-          hotspots.map((h) => (
+          hotspots.map((h, i) => (
             <g
               key={h.id}
+              style={{ '--i': i }}
               className={`kcc-hotspot kind-${h.kind} ${activeId === h.id ? 'is-active' : ''}`}
               role="button"
               tabIndex={0}

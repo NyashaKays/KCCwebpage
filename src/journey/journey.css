@@ -323,3 +323,313 @@ html.lenis { scroll-behavior: auto !important; }
 /* Site-specific: let the plan card overflow the white frame */
 .plan-wrap:has(.kcc-plan) { overflow: visible; }
 .kcc-street .kcc-street-head h2 { font-size: 38px; }
+
+/* ═════════════ Playful layer ═════════════ */
+
+/* ── Plan pins pop up in turn, then keep pulsing ── */
+.kcc-plan .kcc-hotspot-pin { opacity: 0; animation: none; }
+.kcc-plan.is-inview .kcc-hotspot-pin,
+.kcc-plan.is-calibrating .kcc-hotspot-pin {
+  opacity: 1;
+  animation:
+    kcc-pop 0.55s cubic-bezier(0.3, 1.6, 0.5, 1) calc(var(--i, 0) * 90ms) both,
+    kcc-pin 2.4s ease-in-out calc(var(--i, 0) * 90ms + 0.6s) infinite;
+}
+@keyframes kcc-pop {
+  0% { transform: scale(0); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* ── Mini-map: the walked path "moves" like footsteps ── */
+.kcc-minimap-path { animation: kcc-march 1.2s linear infinite; }
+@keyframes kcc-march { to { stroke-dashoffset: -24; } }
+
+/* ── Street: day to dusk ── */
+.kcc-street {
+  --dusk: 0;
+  --dusk-force: 0;
+  --d: max(var(--dusk), var(--dusk-force));
+}
+.kcc-street-sky {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background: linear-gradient(#141026 0%, #3d1830 45%, #8a2a2a 78%, #d86a2c 100%);
+  /* squared so the sky stays bright for longer, then sets quickly */
+  opacity: calc(var(--d) * var(--d) * 0.92);
+  transition: opacity 0.8s ease;
+}
+.kcc-street-back { z-index: 0; filter: brightness(calc(1 - var(--d) * 0.6)); transition: filter 0.8s; }
+.kcc-street-head, .kcc-street-track { z-index: 1; }
+.kcc-street-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+.kcc-street-head h2,
+.kcc-street-head .kcc-eyebrow {
+  transition: color 0.8s;
+}
+.kcc-street.is-dusk .kcc-street-head h2 { color: #fff; }
+.kcc-street.is-dusk .kcc-street-head .kcc-eyebrow { color: #ff8a95; }
+/* when the scrub (not the button) darkens it, switch text once it's dark enough */
+@supports (color: color-mix(in srgb, red 50%, blue)) {
+  .kcc-street-head h2 { color: color-mix(in srgb, #fff calc(var(--d) * 100%), #111111); }
+}
+.kcc-dusk-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 16px;
+  border-radius: 999px;
+  border: 1px solid #11111133;
+  background: #fff;
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.08);
+  transition: background 0.3s, color 0.3s, transform 0.2s;
+}
+.kcc-dusk-toggle:hover { transform: translateY(-1px); }
+.kcc-street.is-dusk .kcc-dusk-toggle { background: #ffcf7a; border-color: #ffcf7a; }
+
+.kcc-street-house img {
+  filter: brightness(calc(1 - var(--d) * 0.5)) saturate(calc(1 - var(--d) * 0.35));
+  transition: filter 0.8s;
+}
+.kcc-street-house a { position: relative; }
+/* porch light + warm windows */
+.kcc-street-house a::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto 0;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--kcc-radius) var(--kcc-radius) 0 0;
+  pointer-events: none;
+  background:
+    radial-gradient(ellipse 28% 16% at 50% 74%, rgb(255 196 110 / 0.85), transparent 70%),
+    radial-gradient(ellipse 45% 28% at 50% 48%, rgb(255 180 90 / 0.28), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: var(--d);
+  transition: opacity 0.8s;
+}
+.kcc-street-ground { filter: brightness(calc(1 - var(--d) * 0.65)); transition: filter 0.8s; }
+
+.kcc-fireflies { position: absolute; inset: 0; z-index: 2; pointer-events: none; opacity: var(--d); transition: opacity 0.8s; }
+.kcc-fireflies span {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #ffe9a8;
+  box-shadow: 0 0 10px 3px rgb(255 225 140 / 0.8);
+  animation: kcc-firefly 4.5s ease-in-out infinite;
+}
+@keyframes kcc-firefly {
+  0%, 100% { transform: translate(0, 0); opacity: 0.2; }
+  30% { opacity: 1; }
+  50% { transform: translate(18px, -14px); opacity: 0.6; }
+  80% { transform: translate(-10px, 8px); opacity: 1; }
+}
+
+/* ── Housing cards: porch light on hover ── */
+.housing-photo { overflow: hidden; }
+.housing-photo img { transition: transform 0.6s ease; }
+.housing-photo::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse 30% 22% at 50% 72%, rgb(255 196 110 / 0.7), transparent 70%);
+  mix-blend-mode: screen;
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+.housing-card:hover .housing-photo::after { opacity: 1; }
+.housing-card:hover .housing-photo img { transform: scale(1.04); }
+
+/* ── Floor plan explorer ── */
+.kcc-inside { background: var(--pale, #f5f5f5); }
+.kcc-fp {
+  display: grid;
+  grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr);
+  gap: 32px;
+  align-items: start;
+}
+.kcc-fp-stage {
+  background: #fff;
+  border: 1px solid var(--line, #e6e6e6);
+  border-radius: 12px;
+  padding: 16px;
+}
+.kcc-fp-floors { display: flex; gap: 8px; margin-bottom: 12px; }
+.kcc-fp-floors button {
+  flex: 1;
+  padding: 11px 14px;
+  border: 1px solid var(--line, #e6e6e6);
+  border-radius: 8px;
+  background: #fff;
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.kcc-fp-floors button small { font-weight: 500; opacity: 0.7; margin-left: 6px; }
+.kcc-fp-floors button.is-on { background: #111; border-color: #111; color: #fff; }
+.kcc-fp svg { display: block; width: 100%; height: auto; touch-action: manipulation; }
+.kcc-fp-dim { fill: rgb(17 17 17 / 0.16); transition: opacity 0.3s; }
+.kcc-fp-room { cursor: pointer; outline: none; }
+.kcc-fp-room rect {
+  fill: rgb(200 16 46 / 0);
+  stroke: rgb(200 16 46 / 0);
+  stroke-width: 3;
+  transition: fill 0.25s, stroke 0.25s;
+}
+.kcc-fp-room:hover rect { fill: rgb(200 16 46 / 0.08); stroke: rgb(200 16 46 / 0.5); }
+.kcc-fp-room.is-active rect { fill: rgb(200 16 46 / 0.12); stroke: #c8102e; }
+.kcc-fp-room:focus-visible rect { stroke: #111; stroke-width: 4; }
+.kcc-fp-caption { margin: 10px 0 0; font-size: 11px; letter-spacing: 0.6px; color: #777; text-align: center; }
+.kcc-fp-panel {
+  position: sticky;
+  top: 110px;
+  background: #fff;
+  border-radius: 12px;
+  padding: 26px;
+  border-top: 4px solid #c8102e;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.06);
+}
+.kcc-fp-panel h3 { margin-bottom: 6px; }
+.kcc-fp-step { font-size: 10px; letter-spacing: 1.4px; text-transform: uppercase; font-weight: 800; color: #c8102e; margin-bottom: 10px; }
+.kcc-fp-size { font-family: 'Manrope', sans-serif; font-size: 18px; font-weight: 800; color: #111; margin-bottom: 14px; }
+.kcc-fp-panel img { display: block; width: 100%; aspect-ratio: 16 / 10; object-fit: cover; border-radius: 8px; margin-bottom: 14px; animation: kcc-card-in 0.3s ease-out; }
+.kcc-fp-panel > p:not(.kcc-fp-step):not(.kcc-fp-size) { font-size: 14px; }
+.kcc-fp-nav { display: flex; gap: 10px; margin: 6px 0 16px; }
+.kcc-fp-nav button {
+  padding: 12px 16px;
+  border-radius: 6px;
+  border: 1px solid #111;
+  background: #fff;
+  color: #111;
+  font-size: 13px;
+  font-weight: 700;
+}
+.kcc-fp-nav button:disabled { opacity: 0.35; cursor: default; }
+.kcc-fp-nav .is-primary { flex: 1; background: #c8102e; border-color: #c8102e; color: #fff; }
+.kcc-fp-nav .is-primary:hover { background: #9b0c23; }
+.kcc-fp-panel small { display: block; font-size: 10px; line-height: 1.7; color: #777; }
+
+/* ── Design your cottage ── */
+.kcc-picker {
+  display: grid;
+  grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+  gap: 36px;
+  align-items: start;
+}
+.kcc-picker-stage {
+  position: relative;
+  aspect-ratio: 1024 / 792;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #f5f5f5;
+  position: sticky;
+  top: 110px;
+}
+.kcc-picker-stage img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transform: scale(1.04);
+  transition: opacity 0.6s ease, transform 0.9s ease;
+}
+.kcc-picker-stage img.is-on { opacity: 1; transform: none; }
+.kcc-picker-tag {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  max-width: calc(100% - 32px);
+  padding: 9px 13px;
+  border-radius: 6px;
+  background: #111111d9;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.kcc-picker-controls fieldset { border: 0; padding: 0; margin: 0 0 22px; }
+.kcc-picker-controls legend { font-size: 10px; letter-spacing: 1.6px; text-transform: uppercase; font-weight: 800; margin-bottom: 10px; color: #111; }
+.kcc-picker-controls input { position: absolute; opacity: 0; pointer-events: none; }
+.kcc-swatches { display: grid; gap: 8px; }
+.kcc-swatch {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 11px 13px;
+  border: 1px solid var(--line, #e6e6e6);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.kcc-swatch strong { display: block; font-size: 14px; }
+.kcc-swatch small { font-size: 12px; color: #666; }
+.kcc-swatch-dot { width: 28px; height: 28px; flex: none; border-radius: 50%; border: 3px solid #fff; box-shadow: 0 0 0 1px #ccc; }
+.sw-blue .kcc-swatch-dot { background: #5d7fa8; }
+.sw-gray .kcc-swatch-dot { background: #8d9198; }
+.sw-yellow .kcc-swatch-dot { background: #d9c77e; }
+.kcc-swatch.is-on { border-color: #c8102e; box-shadow: 0 0 0 2px #c8102e33; }
+.kcc-swatch.is-on .kcc-swatch-dot { box-shadow: 0 0 0 2px #c8102e; }
+.kcc-chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.kcc-chip {
+  padding: 9px 14px;
+  border: 1px solid var(--line, #e6e6e6);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+.kcc-chip:hover { border-color: #111; }
+.kcc-chip.is-on { background: #111; border-color: #111; color: #fff; }
+.kcc-swatch:has(input:focus-visible),
+.kcc-chip:has(input:focus-visible) { outline: 3px solid #ff4d5e; outline-offset: 2px; }
+.kcc-picker-send { display: flex; width: 100%; justify-content: space-between; }
+.kcc-picker-note { display: block; font-size: 10px; line-height: 1.7; color: #777; margin-top: 12px; }
+
+/* ── Falling leaves ── */
+.everyday { position: relative; overflow: hidden; }
+.kcc-leaves { position: absolute; inset: 0; pointer-events: none; z-index: 0; }
+.everyday > *:not(.kcc-leaves) { position: relative; z-index: 1; }
+.kcc-leaves span {
+  position: absolute;
+  top: -40px;
+  opacity: 0.55;
+  animation-name: kcc-fall;
+  animation-timing-function: linear;
+  animation-iteration-count: infinite;
+}
+@keyframes kcc-fall {
+  0% { transform: translate(0, 0) rotate(var(--leaf-rot)); }
+  25% { transform: translate(40px, 25vh) rotate(calc(var(--leaf-rot) + 90deg)); }
+  50% { transform: translate(-10px, 50vh) rotate(calc(var(--leaf-rot) + 180deg)); }
+  75% { transform: translate(35px, 75vh) rotate(calc(var(--leaf-rot) + 270deg)); }
+  100% { transform: translate(0, 105vh) rotate(calc(var(--leaf-rot) + 360deg)); opacity: 0; }
+}
+
+/* ── Phones ── */
+@media (max-width: 860px) {
+  .kcc-fp, .kcc-picker { grid-template-columns: 1fr; }
+  .kcc-fp-panel { position: static; }
+  .kcc-picker-stage { position: relative; top: auto; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kcc-plan .kcc-hotspot-pin { opacity: 1; animation: none !important; }
+  .kcc-minimap-path, .kcc-fireflies span { animation: none; }
+  .kcc-leaves { display: none; }
+  .kcc-street-sky, .kcc-street-house img, .kcc-street-house a::after, .housing-photo img,
+  .kcc-picker-stage img { transition: none; }
+}
