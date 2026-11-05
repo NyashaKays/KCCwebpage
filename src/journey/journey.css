@@ -1,0 +1,325 @@
+/* KCC journey components. Colors are tokens so they match your theme. */
+:root {
+  --kcc-green: #c8102e;
+  --kcc-green-deep: #111111;
+  --kcc-cream: #fafafa;
+  --kcc-sage: #f2f2f2;
+  --kcc-ink: #111111;
+  --kcc-accent: #ffd6da;
+  --kcc-radius: 14px;
+  --kcc-shadow: 0 12px 32px rgb(0 0 0 / 0.22);
+}
+
+/* Lenis handles smoothing; the native smooth-scroll setting fights it. */
+html.lenis, html.lenis body { height: auto; }
+html.lenis { scroll-behavior: auto !important; }
+
+/* ── Interactive plan ─────────────────────────────────────── */
+.kcc-plan {
+  position: relative;
+  border-radius: var(--kcc-radius);
+  overflow: visible;
+  background: #fff;
+}
+.kcc-plan svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  border-radius: var(--kcc-radius);
+  touch-action: manipulation;
+}
+.kcc-hotspot {
+  cursor: pointer;
+  outline: none;
+}
+.kcc-hotspot rect {
+  fill: rgb(200 16 46 / 0);
+  stroke: rgb(255 255 255 / 0);
+  stroke-width: 2.5;
+  transition: fill 0.2s, stroke 0.2s;
+}
+.kcc-hotspot-pin {
+  fill: var(--kcc-green);
+  stroke: #fff;
+  stroke-width: 2;
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kcc-pin 2.4s ease-in-out infinite;
+}
+.kcc-hotspot:hover rect,
+.kcc-hotspot:focus-visible rect,
+.kcc-hotspot.is-active rect {
+  fill: rgb(200 16 46 / 0.35);
+  stroke: #fff;
+}
+.kcc-hotspot:focus-visible rect {
+  stroke: #111111;
+  stroke-width: 4;
+}
+.kind-property .kcc-hotspot-pin,
+.kind-apartment .kcc-hotspot-pin { fill: #111111; }
+.kind-trail .kcc-hotspot-pin,
+.kind-green .kcc-hotspot-pin { fill: #111111; }
+
+@keyframes kcc-pin {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.35); }
+}
+
+.kcc-plan-card {
+  position: absolute;
+  z-index: 5;
+  width: min(260px, 70%);
+  transform: translate(-50%, 10px);
+  background: #fff;
+  color: var(--kcc-ink);
+  border-radius: 12px;
+  box-shadow: var(--kcc-shadow);
+  overflow: hidden;
+  animation: kcc-card-in 0.18s ease-out;
+}
+.kcc-plan-card[style*='bottom'] { transform: translate(-50%, -10px); }
+.kcc-plan-card img { display: block; width: 100%; aspect-ratio: 16 / 9; object-fit: cover; }
+.kcc-plan-card-body { padding: 12px 14px 14px; display: grid; gap: 4px; }
+.kcc-plan-card-body p { margin: 0; font-size: 0.875rem; line-height: 1.4; }
+.kcc-plan-card-kind {
+  font-size: 0.7rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--kcc-green);
+}
+.kcc-plan-card-meta { font-weight: 600; }
+.kcc-plan-card-cta {
+  justify-self: start;
+  margin-top: 6px;
+  padding: 6px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--kcc-green);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+/* With a mouse, the hotspot itself is the link; the card is just a preview. */
+@media (hover: hover) {
+  .kcc-plan-card { pointer-events: none; }
+  .kcc-plan-card-cta { display: none; }
+}
+@keyframes kcc-card-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.is-calibrating svg { cursor: crosshair; }
+.kcc-draft { fill: rgb(255 209 102 / 0.35); stroke: #e0a100; stroke-width: 2; }
+.kcc-calibrate-note {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  font: 13px/1.4 ui-monospace, monospace;
+  background: #fff6d6;
+  border-radius: 8px;
+}
+
+/* ── Mini-map ─────────────────────────────────────────────── */
+.kcc-minimap {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 50;
+  width: 200px;
+  background: #fff;
+  border-radius: var(--kcc-radius);
+  box-shadow: var(--kcc-shadow);
+  overflow: hidden;
+  opacity: 0;
+  transform: translateY(16px);
+  pointer-events: none;
+  transition: opacity 0.35s, transform 0.35s;
+}
+.kcc-minimap.is-visible { opacity: 1; transform: none; pointer-events: auto; }
+
+.kcc-minimap-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 0;
+  background: var(--kcc-green);
+  color: #fff;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+.kcc-minimap-dot-icon {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 0 4px rgb(255 255 255 / 0.3);
+}
+.kcc-minimap-panel svg { display: block; width: 100%; height: auto; max-height: 34vh; }
+.kcc-minimap-path {
+  fill: none;
+  stroke: #c8102e;
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 10;
+}
+.kcc-minimap-stop { fill: #fff; stroke: var(--kcc-ink); stroke-width: 3; }
+.kcc-minimap-stop.is-passed { fill: var(--kcc-ink); }
+.kcc-minimap-you {
+  transition: transform 0.9s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.kcc-minimap-you circle:last-child { fill: #c8102e; stroke: #fff; stroke-width: 3; }
+.kcc-minimap-pulse {
+  fill: rgb(200 16 46 / 0.45);
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: kcc-pulse 1.8s ease-out infinite;
+}
+@keyframes kcc-pulse {
+  from { transform: scale(0.6); opacity: 1; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+.kcc-minimap-stops {
+  list-style: none;
+  margin: 0;
+  padding: 6px;
+  display: grid;
+  gap: 2px;
+}
+.kcc-minimap-stops button {
+  width: 100%;
+  padding: 6px 8px;
+  border: 0;
+  border-radius: 6px;
+  background: none;
+  color: var(--kcc-ink);
+  font: inherit;
+  font-size: 0.8rem;
+  text-align: left;
+  cursor: pointer;
+}
+.kcc-minimap-stops button:hover { background: var(--kcc-sage); }
+.kcc-minimap-stops button.is-current { background: var(--kcc-sage); font-weight: 700; }
+
+/* Desktop: the stop list is hidden until the panel is opened. */
+.kcc-minimap .kcc-minimap-stops { display: none; }
+.kcc-minimap.is-open .kcc-minimap-stops { display: grid; }
+
+/* Phones: collapse to a pill; tapping opens the map and stops. */
+@media (max-width: 700px) {
+  .kcc-minimap { right: 12px; bottom: 12px; left: 12px; width: auto; }
+  .kcc-minimap .kcc-minimap-panel { display: none; }
+  .kcc-minimap.is-open .kcc-minimap-panel { display: block; }
+}
+
+/* ── Street walk ──────────────────────────────────────────── */
+.kcc-street {
+  position: relative;
+  min-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(#f5f5f5 0%, #fafafa 70%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+.kcc-street-back {
+  position: absolute;
+  inset: auto 0 22% 0;
+  height: 40%;
+  width: 300%;
+  /* soft tree line; swap for a real panorama image if you have one */
+  background:
+    radial-gradient(60px 50px at 40px 100%, #d4d4d4 98%, transparent) 0 100% / 120px 100% repeat-x,
+    radial-gradient(90px 70px at 60px 100%, #e6e6e6 98%, transparent) 30px 100% / 170px 100% repeat-x;
+  opacity: 0.7;
+}
+.kcc-street-head { position: relative; padding: 0 clamp(16px, 5vw, 64px); margin-bottom: 24px; }
+.kcc-street-head h2 { margin: 4px 0 0; }
+.kcc-eyebrow {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--kcc-green);
+}
+.kcc-street-track {
+  position: relative;
+  display: flex;
+  gap: clamp(24px, 4vw, 56px);
+  margin: 0;
+  padding: 0 clamp(16px, 5vw, 64px);
+  list-style: none;
+  width: max-content;
+  will-change: transform;
+}
+.kcc-street-house { width: clamp(280px, 32vw, 460px); flex: none; }
+.kcc-street-house a { display: block; color: inherit; text-decoration: none; }
+.kcc-street-house img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: var(--kcc-radius) var(--kcc-radius) 0 0;
+}
+.kcc-street-sign {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  padding: 12px 14px;
+  background: var(--kcc-green);
+  color: #fff;
+  border-radius: 0 0 var(--kcc-radius) var(--kcc-radius);
+}
+.kcc-street-sign span { font-size: 0.85rem; opacity: 0.85; }
+.kcc-street-end { width: 10vw; flex: none; }
+.kcc-street-ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 16%;
+  background: linear-gradient(#e4e4e4, #d0d0d0);
+  z-index: -1;
+}
+
+/* Small screens or reduced motion: a swipeable row instead of pinning. */
+@media (max-width: 899px) {
+  .kcc-street { min-height: auto; padding: 64px 0; }
+  .kcc-street-track {
+    width: auto;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    padding-bottom: 12px;
+  }
+  .kcc-street-house { scroll-snap-align: center; width: 82vw; }
+}
+
+/* ── Reveal fix ───────────────────────────────────────────── *
+ * Content should be visible by default and only animate when JS
+ * confirms it can, so fast scrolling never shows blank sections.
+ * Give elements data-reveal and call initReveal() (reveal.js).   */
+.js-reveal-ready [data-reveal]:not(.is-revealed) {
+  opacity: 0;
+  transform: translateY(24px);
+}
+[data-reveal] { transition: opacity 0.6s ease, transform 0.6s ease; }
+
+@media (prefers-reduced-motion: reduce) {
+  .kcc-hotspot-pin,
+  .kcc-minimap-pulse { animation: none; }
+  .kcc-minimap-you,
+  [data-reveal] { transition: none; }
+  .js-reveal-ready [data-reveal]:not(.is-revealed) { opacity: 1; transform: none; }
+}
+
+/* Site-specific: let the plan card overflow the white frame */
+.plan-wrap:has(.kcc-plan) { overflow: visible; }
+.kcc-street .kcc-street-head h2 { font-size: 38px; }
